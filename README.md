@@ -1,2 +1,3 @@
 # hurl
-Client Server Library
+
+A Client-Server Network Library
