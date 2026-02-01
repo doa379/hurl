@@ -3,11 +3,12 @@ INCS=-I . \
   -I /usr/local/include \
 
 LIBSPATH= -L . -Wl,-R . '-Wl,-R$$ORIGIN' \
+	-L .. \
   -L /usr/lib \
   -L /usr/lib64 \
   -L /usr/local/lib
 
-LIBS=
+LIBS=-l hurl
 
 CC=cc
 FLAGS=-Wall -fPIE -fPIC -pedantic
@@ -17,7 +18,9 @@ DBG_LFLAGS=
 
 CFLAGS=${DBG_CFLAGS}
 
-SRC0=../src/lib.c ../src/client.c client.c
-BIN0=client.bin
-SRC1=
-BIN1=
+SRC0=connect.c
+BIN0=connect.bin
+SRC1=client.c
+BIN1=client.bin
+SRC2=server.c
+BIN2=server.bin

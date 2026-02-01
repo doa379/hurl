@@ -26,6 +26,8 @@ CFLAGS=${DBG_CFLAGS}
 
 HDR_CONFIG=config.h
 SRC=src/lib.c \
+	src/cstr.c \
+	src/proto.c \
 	src/tls.c \
 	src/client.c \
 	src/server.c
