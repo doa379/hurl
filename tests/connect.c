@@ -7,13 +7,13 @@ static char const INVAL[] = "eeeeeeeeeeeeeeeeeeeeeeeeeeeee.com";
 
 int main() {
   {
-    int const res = client_connect(VAL, "80");
-    fprintf(stdout, "Result %d\n", res);
+    client_t const c = client_connect(VAL, "80");
+    fprintf(stdout, "Result %d\n", c.fd);
   }
 
   {
-    int const res = client_connect(INVAL, "80");
-    fprintf(stdout, "Result %d\n", res);
+    client_t const c = client_connect(INVAL, "80");
+    fprintf(stdout, "Result %d\n", c.fd);
   }
 
   return 0;

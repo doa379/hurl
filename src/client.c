@@ -20,6 +20,7 @@ client_connect(char const HOST[], char const PORT[]) {
 
 void
 client_disconn(client_t* const c) {
+  lib_close(c->fd);
   cstr_deinit(&c->res);
   cstr_deinit(&c->req);
   cstr_deinit(&c->host);

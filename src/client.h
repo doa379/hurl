@@ -1,5 +1,7 @@
 #pragma once
 
+#include "cstr.h"
+
 typedef struct {
   int fd;
   cstr_t host;

@@ -3,7 +3,7 @@
 
 #include "cstr.h"
 
-static size_t RES = sizeof ((cstr_t*) 0)->s;
+static size_t const RES = sizeof ((cstr_t*) 0)->s;
 
 cstr_t
 cstr_init(char const* str) {
