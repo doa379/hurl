@@ -18,11 +18,13 @@ static char const USER[] = "Request";
 
 cstr_t
 proto_req(cstr_t const* host, enum proto_meth const m, 
-cstr_t const* endp, cstr_t const* hdr[], unsigned const nhdr, 
+cstr_t const* endp, cstr_t const hdr[], unsigned const nhdr, 
 cstr_t const* data) {
-  cstr_t req;
-  cstr_app(&req, METH[m]);
-  cstr_app(&req, " ");
+  cstr_t req = cstr_init(METH[m]);
+  if (cstr_len(endp) != 0) {
+    cstr_app(&req, " ");
+  }
+
   cstr_app(&req, cstr_data(endp));
   cstr_app(&req, " HTTP/1.1\r\n");
   cstr_app(&req, "Host: ");
@@ -33,17 +35,20 @@ cstr_t const* data) {
   cstr_app(&req, "\r\n");
   cstr_app(&req, "Accept: */*\r\n");
   for (unsigned i = 0; i < nhdr; i++) {
-    cstr_app(&req, cstr_data(hdr[i]));
+    cstr_app(&req, cstr_data(&hdr[i]));
     cstr_app(&req, "\r\n");
   }
 
-  size_t const len = cstr_len(data);
-  if (len) {
+  size_t const datalen = cstr_len(data);
+  if (datalen) {
     cstr_app(&req, "Content-Length: ");
-    /* convert to alpha */
-    char len_s[24];
-    snprintf(len_s, sizeof len_s, "%zu", len);
-    cstr_app(&req, len_s);
+    {
+      /* convert to alpha */
+      char str[24];
+      snprintf(str, sizeof str, "%zu", datalen);
+      cstr_app(&req, str);
+    }
+
     cstr_app(&req, "\r\n\r\n");
     cstr_app(&req, cstr_data(data));
   }

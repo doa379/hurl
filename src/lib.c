@@ -84,12 +84,12 @@ lib_poll_err(int const fd, int const toms) {
 
 ssize_t
 lib_write(int const fd, char const* p, size_t const n) {
-  size_t r = 0;
+  ssize_t r = 0;
   while (r < n) {
     ssize_t const R = write(fd, p + r, n - r);
     if (R > 0) {
       r += R;
-    } else if (R == 0 || lib_poll_err(fd, 10)) {
+    } else if (R == 0 || lib_poll_err(fd, 100) == 0) {
       return -1;
     }
   }
@@ -99,16 +99,14 @@ lib_write(int const fd, char const* p, size_t const n) {
 
 ssize_t
 lib_read(int const fd, char* const s, size_t const n) {
-  char P[128];
-  size_t r = 0;
+  ssize_t r = 0;
   while (r < n) {
-    size_t const d = n - r;
-    ssize_t const R =
-      read(fd, P, d < sizeof P ? d : sizeof P);
+    ssize_t const R = read(fd, s, n);
     if (R > 0) {
-      memcpy(s + r, P, R);
       r += R;
-    } else if (R == 0 || lib_poll_err(fd, 10)) {
+    } else if (R == 0) {
+      return 0;
+    } else if (lib_poll_err(fd, 100) == 0) {
       return -1;
     }
   }

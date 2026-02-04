@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 #include "lib.h"
 #include "proto.h"
 
@@ -28,31 +30,34 @@ client_disconn(client_t* const c) {
 
 void
 client_perform(client_t const* c) {
-  /*
-  Handle::State s { http.req(host, req.meth, req.endp, req.HDR, req.data) };
-  while (s.sent < s.req.size()) {
-    if (auto const sent { 
-      prot.write(s.req.data() + s.sent, s.req.size() - s.sent) }; sent > 0) 
-        s.sent += sent;
-    else
-      return;
+  cstr_t endp = cstr_init("/");
+  cstr_t const hdr[] = {
+    cstr_init("Connection: Close"),
+  };
+
+  cstr_t req = proto_req(&c->host, proto_GET, 
+    &endp, hdr, 1, NULL);
+  fprintf(stdout, "%s\n", cstr_data(&req));
+
+  size_t pending = cstr_len(&req);
+  while (pending) {
+    ssize_t const w =
+      lib_write(c->fd, cstr_data(&req), pending);
+    pending -= w;
   }
 
-  while (!http.hdr(s.swap))
-    if (auto const recv { prot.read(s.swap, 1) }; recv < 1)
-      return;
-  
-  http.stripeol(s.swap);
-  req.hdr = s.swap;
-  s.swap.clear();
-
-  while (true) {
-    auto const recv { prot.read(s.swap, 1) };
-    if (recv < 1)
+  cstr_t res = cstr_init(NULL);
+  char P[128];
+  while (1) {
+    ssize_t const r = lib_read(c->fd, P, sizeof P);
+    if (r > 0) {
+      cstr_app(&res, P);
+    } else if (r < 1) {
       break;
-    
-    req.cb(s.swap.data());
-    s.swap.clear();
+    }
   }
-  */
+
+  fprintf(stdout, "%s\n", cstr_data(&res));
+  cstr_deinit(&endp);
+  cstr_deinit(&req);
 }

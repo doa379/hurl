@@ -10,7 +10,10 @@ LIBSPATH= -L . -Wl,-R . '-Wl,-R$$ORIGIN' \
 LIBS=-l ssl -l crypto
 
 CC=cc
-FLAGS=-Wall -fPIE -fPIC -pedantic
+FLAGS=-Wall \
+	-fPIE \
+  -fPIC \
+  -pedantic
 
 REL_CFLAGS=-O3
 REL_LFLAGS=-s -shared
@@ -18,7 +21,7 @@ REL_LIB=libhurl.so
 
 DBG_CFLAGS=-O1 -g -fno-omit-frame-pointer
 DBG_LFLAGS=-shared
-DBG_BIN=libhurl~dbg.so
+DBG_LIB=libhurl~dbg.so
 
 # Compiler optim'n to be set manually :/
 #CFLAGS=${REL_CFLAGS}

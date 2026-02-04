@@ -8,12 +8,13 @@ LIBSPATH= -L . -Wl,-R . '-Wl,-R$$ORIGIN' \
   -L /usr/lib64 \
   -L /usr/local/lib
 
-LIBS=-l hurl
+LIBS=-l hurl~dbg
 
 CC=cc
 FLAGS=-Wall -fPIE -fPIC -pedantic
 
-DBG_CFLAGS=-O1 -g -fno-omit-frame-pointer
+DBG_CFLAGS=-O1 -g \
+	-fno-omit-frame-pointer
 DBG_LFLAGS=
 
 CFLAGS=${DBG_CFLAGS}

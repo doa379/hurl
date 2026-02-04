@@ -16,5 +16,5 @@ enum proto_meth {
 
 cstr_t
 proto_req(cstr_t const*, enum proto_meth const, 
-cstr_t const*, cstr_t const* [], unsigned const, 
+cstr_t const*, cstr_t const[], unsigned const, 
 cstr_t const*);

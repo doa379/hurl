@@ -3,24 +3,34 @@
 
 #include "cstr.h"
 
-static size_t const RES = sizeof ((cstr_t*) 0)->s;
+/* Short string reserve */
+static size_t const SSR = sizeof ((cstr_t*) 0)->s;
 
 cstr_t
 cstr_init(char const* str) {
-  cstr_t cstr = {
-    .len = strlen(str),
-    .res = RES,
-  };
-  
-  if (cstr.len < RES) {
-    memcpy(cstr.s, str, cstr.len);        
-    cstr.s[cstr.len] = '\0';
+  if (str == NULL) {
+    return (cstr_t) {
+      .len = 0,
+      .res = SSR,
+      .s = { 0 }
+    };
+  }
+
+  cstr_t cstr = { 0 };
+  size_t const l = strlen(str);
+  if (l < SSR) {
+    memcpy(cstr.s, str, l);
+    cstr.s[l] = '\0';
+    cstr.len = l;
+    cstr.res = SSR;
   } else {
-    cstr.p = malloc(cstr.len + 1);
-    if (cstr.p) {
-      memcpy(cstr.p, str, cstr.len);
-      cstr.p[cstr.len] = '\0';
-      cstr.res = cstr.len + 1;
+    char* buf = malloc(l + 1);
+    if (buf) {
+      memcpy(buf, str, l);
+      buf[l] = '\0';
+      cstr.p = buf;
+      cstr.len = l;
+      cstr.res = l + 1;
     }
   }
 
@@ -29,26 +39,32 @@ cstr_init(char const* str) {
 
 void
 cstr_app(cstr_t* const cstr, char const* str) {
+  if (str == NULL) {
+    return;
+  }
+
   size_t const l = strlen(str);
   size_t const nextl = cstr->len + l;
-
-  if (nextl < RES) {
-    strncat(cstr->s, str, l);
+  if (nextl < SSR && cstr->res <= SSR) {
+    memcpy(cstr->s + cstr->len, str, l);
     cstr->s[nextl] = '\0';
     cstr->len = nextl;
-  } else if (cstr->res < RES) {
+  } else if (cstr->res <= SSR) {
     char* buf = malloc(nextl + 1);
     if (buf) {
       memcpy(buf, cstr->s, cstr->len);
       memcpy(buf + cstr->len, str, l);
+      buf[nextl] = '\0';
       cstr->p = buf;
       cstr->len = nextl;
       cstr->res = nextl + 1;
     }
   } else {
-    cstr->p = realloc(cstr->p, nextl + 1);
-    if (cstr->p) {
-      memcpy(cstr->p + cstr->len, str, l);
+    char* buf = realloc(cstr->p, nextl + 1);
+    if (buf) {
+      memcpy(buf + cstr->len, str, l);
+      buf[nextl] = '\0';
+      cstr->p = buf;
       cstr->len = nextl;
       cstr->res = nextl + 1;
     }
@@ -56,18 +72,42 @@ cstr_app(cstr_t* const cstr, char const* str) {
 }
 
 void
+cstr_move(cstr_t* const dst, cstr_t* const src) {
+  if (dst == src) {
+    return;
+  }
+
+  if (dst->res > SSR) {
+    free(dst->p);
+  }
+
+  if (src->res > SSR) {
+    *dst = *src;
+  } else {
+    memcpy(dst->s, src->s, src->len + 1);
+    dst->len = src->len;
+    dst->res = SSR;
+  }
+
+  src->s[0] = '\0';
+  src->len = 0;
+  src->res = SSR;
+}
+
+void
 cstr_deinit(cstr_t* const cstr) {
-  if (cstr->res > RES) {
+  if (cstr->res > SSR) {
     free(cstr->p);
   }
 }
 
 char const*
 cstr_data(cstr_t const* cstr) {
-  return cstr->res > RES ? cstr->p : cstr->s;
+  return cstr && cstr->res > SSR ? cstr->p : 
+    cstr ? cstr->s : NULL;
 }
 
 size_t
 cstr_len(cstr_t const* cstr) {
-  return cstr->len;
+  return cstr ? cstr->len : 0;
 }

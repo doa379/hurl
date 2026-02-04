@@ -9,6 +9,11 @@ typedef struct {
   cstr_t res;
 } client_t;
 
+typedef struct {
+  cstr_t req;
+
+} client_hnd_t;
+
 client_t client_connect(char const[], char const[]);
 void client_disconn(client_t* const);
 void client_perform(client_t const*);
